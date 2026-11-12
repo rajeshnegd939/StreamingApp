@@ -1,0 +1,87 @@
+# StorageClass streamingapp-gp3 is cluster-wide, created once from infra/k8s/cluster-setup.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongodb-init
+  labels: {{- include "sa.labels" . | nindent 4 }}
+data:
+  # runs once, on the first start with an empty disk
+  create-app-user.js: |
+    db.getSiblingDB(process.env.MONGO_INITDB_DATABASE).createUser({
+      user: process.env.MONGO_APP_USER,
+      pwd: process.env.MONGO_APP_PASSWORD,
+      roles: [{ role: "readWrite", db: process.env.MONGO_INITDB_DATABASE }]
+    });
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  labels: {{- include "sa.labels" . | nindent 4 }}
+spec:
+  clusterIP: None          # headless: gives the pod the stable name mongodb-0.mongodb
+  selector: { app: mongodb }
+  ports:
+    - port: 27017
+      name: mongo
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb
+  labels: {{- include "sa.labels" . | nindent 4 }}
+spec:
+  serviceName: mongodb
+  replicas: 1
+  selector:
+    matchLabels: { app: mongodb }
+  template:
+    metadata:
+      labels: { app: mongodb }
+    spec:
+      securityContext:
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+      containers:
+        - name: mongodb
+          image: {{ .Values.mongodb.image }}
+          ports:
+            - containerPort: 27017
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: root
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom: { secretKeyRef: { name: streamingapp-secrets, key: mongo-root-password } }
+            - name: MONGO_INITDB_DATABASE
+              value: {{ .Values.mongodb.database }}
+            - name: MONGO_APP_USER
+              value: {{ .Values.mongodb.appUser }}
+            - name: MONGO_APP_PASSWORD
+              valueFrom: { secretKeyRef: { name: streamingapp-secrets, key: mongo-app-password } }
+          volumeMounts:
+            - name: data
+              mountPath: /data/db
+            - name: init
+              mountPath: /docker-entrypoint-initdb.d
+          readinessProbe:
+            exec: { command: ["mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"] }
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket: { port: 27017 }
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources: {{- toYaml .Values.mongodb.resources | nindent 12 }}
+      volumes:
+        - name: init
+          configMap: { name: mongodb-init }
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: streamingapp-gp3
+        resources:
+          requests:
+            storage: {{ .Values.mongodb.storage }}

@@ -1,0 +1,57 @@
+{{- $ns := .Release.Namespace -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+    {{- include "sa.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.frontend.replicas }}
+  selector:
+    matchLabels: { app: frontend }
+  template:
+    metadata:
+      labels: { app: frontend, tier: frontend }
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+      containers:
+        - name: frontend
+          image: {{ include "sa.image" (dict "root" . "image" .Values.frontend.image) }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.frontend.port }}
+          env:
+            # full names: the nginx resolver does not use the Kubernetes search domains
+            - name: AUTH_SERVICE
+              value: "auth.{{ $ns }}.svc.cluster.local:{{ .Values.backends.auth.port }}"
+            - name: STREAMING_SERVICE
+              value: "streaming.{{ $ns }}.svc.cluster.local:{{ .Values.backends.streaming.port }}"
+            - name: ADMIN_SERVICE
+              value: "admin.{{ $ns }}.svc.cluster.local:{{ .Values.backends.admin.port }}"
+            - name: CHAT_SERVICE
+              value: "chat.{{ $ns }}.svc.cluster.local:{{ .Values.backends.chat.port }}"
+          readinessProbe:
+            httpGet: { path: /healthz, port: {{ .Values.frontend.port }} }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /healthz, port: {{ .Values.frontend.port }} }
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources: {{- toYaml .Values.frontend.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+    {{- include "sa.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.frontend.service.type }}
+  selector: { app: frontend }
+  ports:
+    - port: {{ .Values.frontend.service.port }}
+      targetPort: {{ .Values.frontend.port }}

@@ -1,0 +1,62 @@
+# EKS cluster for StreamingApp (account 099739121791, ap-south-1)
+# Create:  eksctl create cluster -f infra/eksctl/cluster.yaml
+# Delete:  eksctl delete cluster -f infra/eksctl/cluster.yaml --disable-nodegroup-eviction
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: streamingapp-eks
+  region: ap-south-1
+  tags:
+    Project: streamingapp
+
+# new VPC: public + private subnets in 2 AZs, one NAT gateway
+vpc:
+  cidr: 10.20.0.0/16
+  nat:
+    gateway: Single
+  clusterEndpoints:
+    publicAccess: true
+    privateAccess: true
+
+availabilityZones: ["ap-south-1a", "ap-south-1b"]
+
+accessConfig:
+  authenticationMode: API_AND_CONFIG_MAP
+
+iam:
+  withOIDC: true
+
+addons:
+  - name: vpc-cni
+  - name: coredns
+  - name: kube-proxy
+  - name: eks-pod-identity-agent
+  - name: metrics-server              # needed by the HorizontalPodAutoscaler
+  - name: aws-ebs-csi-driver          # persistent disk for MongoDB
+    useDefaultPodIdentityAssociations: true
+  - name: amazon-cloudwatch-observability   # Container Insights metrics + Fluent Bit logs
+
+managedNodeGroups:
+  - name: app-nodes
+    instanceType: t3.medium
+    minSize: 2
+    desiredCapacity: 2
+    maxSize: 3
+    volumeSize: 30
+    privateNetworking: true           # nodes have no public IPs
+    labels: { role: app }
+    tags:
+      Project: streamingapp
+    iam:
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy   # Container Insights agent
+
+cloudWatch:
+  clusterLogging:
+    enableTypes: ["api", "audit", "authenticator"]
+    logRetentionInDays: 7

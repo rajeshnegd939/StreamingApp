@@ -1,0 +1,70 @@
+image:
+  registry: 099739121791.dkr.ecr.ap-south-1.amazonaws.com/streamingapp
+  tag: latest            # Jenkins sets this to the git commit
+  pullPolicy: IfNotPresent
+
+aws:
+  region: ap-south-1
+  s3Bucket: streamingapp-media-099739121791
+
+# Public URL of the app (http://<load balancer>). Leave empty: the chart reads the
+# load balancer hostname from the frontend Service after the first install.
+publicUrl: ""
+
+# Service account that gets S3 access through an EKS Pod Identity association
+s3ServiceAccount: streamingapp-s3
+
+frontend:
+  image: frontend
+  replicas: 2
+  port: 8080
+  service:
+    type: LoadBalancer
+    port: 80
+  resources:
+    requests: { cpu: 50m, memory: 64Mi }
+    limits: { cpu: 300m, memory: 128Mi }
+  hpa: { enabled: true, min: 2, max: 3, cpu: 70 }
+
+backends:
+  auth:
+    image: auth-service
+    port: 3001
+    replicas: 1
+    healthPath: /health
+    s3: false
+    hpa: { enabled: true, min: 1, max: 3, cpu: 70 }
+  streaming:
+    image: streaming-service
+    port: 3002
+    replicas: 2
+    healthPath: /api/health
+    s3: true
+    hpa: { enabled: true, min: 2, max: 4, cpu: 70 }
+  admin:
+    image: admin-service
+    port: 3003
+    replicas: 1
+    healthPath: /api/health
+    s3: true
+    hpa: { enabled: false }
+  chat:
+    image: chat-service
+    port: 3004
+    replicas: 1
+    healthPath: /api/health
+    s3: false
+    hpa: { enabled: false }
+
+backendResources:
+  requests: { cpu: 100m, memory: 128Mi }
+  limits: { cpu: 500m, memory: 384Mi }
+
+mongodb:
+  image: mongo:7.0
+  database: streamingapp
+  appUser: streamingapp
+  storage: 5Gi
+  resources:
+    requests: { cpu: 100m, memory: 256Mi }
+    limits: { cpu: 500m, memory: 768Mi }

@@ -1,0 +1,22 @@
+# Cluster-wide objects, applied once by an admin:
+#   kubectl apply -f infra/k8s/cluster-setup.yaml
+# Everything else lives in the Helm chart and is deployed by Jenkins,
+# which only has admin rights inside the streamingapp namespace.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: streamingapp
+  labels:
+    app.kubernetes.io/part-of: streamingapp
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: streamingapp-gp3
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+parameters:
+  type: gp3
+  encrypted: "true"
