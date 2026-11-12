@@ -1,0 +1,123 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="streamingapp-eks" name="Architecture">
+    <mxGraphModel dx="1920" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="aws" value="AWS Cloud · account 099739121791" style="points=[];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=1;container=0;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud_alt;strokeColor=#232F3E;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#232F3E;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="330" y="20" width="1570" height="860" as="geometry" />
+        </mxCell>
+        <mxCell id="region" value="Region ap-south-1 (Mumbai)" style="points=[];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;container=0;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_region;strokeColor=#00A4A6;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="350" y="60" width="1530" height="800" as="geometry" />
+        </mxCell>
+
+        <!-- left: people + GitHub -->
+        <mxCell id="dev" value="Developer" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#232F3D;strokeColor=none;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.user;" vertex="1" parent="1">
+          <mxGeometry x="125" y="40" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="gh" value="&lt;b&gt;GitHub&lt;/b&gt; rajeshnegd939/StreamingApp&lt;br&gt;(fork, synced from upstream&lt;br&gt;UnpredictablePrashant/StreamingApp)&lt;br&gt;Dockerfiles · Helm chart · Jenkinsfile" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#24292F;fontSize=11;fontColor=#24292F;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="20" y="140" width="270" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="users" value="Users (browser)" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#232F3D;strokeColor=none;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.users;" vertex="1" parent="1">
+          <mxGeometry x="120" y="300" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="mail" value="Email&lt;br&gt;choudhary.rajesh939@gmail.com" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#AAB7B8;fontSize=11;fontColor=#232F3E;" vertex="1" parent="1">
+          <mxGeometry x="40" y="600" width="230" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- CI/CD column -->
+        <mxCell id="defvpc" value="Default VPC · public subnet" style="fillColor=none;strokeColor=#8C4FFF;dashed=0;verticalAlign=top;fontColor=#8C4FFF;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="380" y="100" width="290" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="jenkins" value="&lt;b&gt;Jenkins&lt;/b&gt; (EC2 t3.medium, Docker)&lt;br&gt;Configuration as Code, job streamingapp-ci-cd&lt;br&gt;trigger: poll GitHub every 2 min&lt;br&gt;IAM role: ECR push, EKS describe, SNS&lt;br&gt;SG: 8080 from my IP only, no SSH" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF5EB;strokeColor=#ED7100;fontSize=11;fontColor=#232F3E;align=left;spacingLeft=8;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="395" y="130" width="260" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="ecr" value="&lt;b&gt;Amazon ECR&lt;/b&gt; (scan on push, keep last 10)&lt;br&gt;streamingapp/frontend&lt;br&gt;streamingapp/auth-service&lt;br&gt;streamingapp/streaming-service&lt;br&gt;streamingapp/admin-service&lt;br&gt;streamingapp/chat-service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF5EB;strokeColor=#ED7100;fontSize=11;fontColor=#232F3E;align=left;spacingLeft=8;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="395" y="310" width="260" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="sns" value="&lt;b&gt;Amazon SNS&lt;/b&gt;&lt;br&gt;streamingapp-deployments (Jenkins success / failure)&lt;br&gt;streamingapp-alerts (CloudWatch alarms)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FDEDF3;strokeColor=#E7157B;fontSize=11;fontColor=#232F3E;align=left;spacingLeft=8;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="395" y="590" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="cw" value="&lt;b&gt;Amazon CloudWatch&lt;/b&gt;&lt;br&gt;Container Insights metrics&lt;br&gt;Logs: /aws/containerinsights/streamingapp-eks/*&lt;br&gt;Alarms: node CPU &amp;gt; 80%, pods down, node failed" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FDEDF3;strokeColor=#E7157B;fontSize=11;fontColor=#232F3E;align=left;spacingLeft=8;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="395" y="700" width="260" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- EKS VPC -->
+        <mxCell id="vpc" value="VPC 10.20.0.0/16 (eksctl) · 2 AZs: ap-south-1a, ap-south-1b" style="points=[];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;container=0;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc2;strokeColor=#8C4FFF;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#8C4FFF;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="710" y="100" width="940" height="740" as="geometry" />
+        </mxCell>
+        <mxCell id="pubsub" value="Public subnets" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F2F8EC;strokeColor=#7AA116;verticalAlign=top;align=left;spacingLeft=8;fontSize=11;fontColor=#3F5E0A;" vertex="1" parent="1">
+          <mxGeometry x="730" y="140" width="900" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="lb" value="Load Balancer&lt;br&gt;(Service type LoadBalancer, :80)" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#8C4FFF;strokeColor=none;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.classic_load_balancer;" vertex="1" parent="1">
+          <mxGeometry x="830" y="155" width="46" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="nat" value="NAT Gateway" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#8C4FFF;strokeColor=none;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.nat_gateway;" vertex="1" parent="1">
+          <mxGeometry x="1500" y="155" width="46" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="eks" value="&lt;b&gt;Amazon EKS&lt;/b&gt; streamingapp-eks · managed node group 2-3 x t3.medium in private subnets · add-ons: metrics-server, EBS CSI, Pod Identity, CloudWatch" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#EAF3FB;strokeColor=#147EBA;verticalAlign=top;align=left;spacingLeft=8;fontSize=11;fontColor=#0B4F8A;" vertex="1" parent="1">
+          <mxGeometry x="730" y="260" width="900" height="560" as="geometry" />
+        </mxCell>
+        <mxCell id="ns" value="namespace streamingapp (Helm release streamingapp)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#326CE5;dashed=1;verticalAlign=top;align=left;spacingLeft=8;fontSize=11;fontColor=#326CE5;arcSize=3;" vertex="1" parent="1">
+          <mxGeometry x="750" y="300" width="860" height="500" as="geometry" />
+        </mxCell>
+
+        <mxCell id="fe" value="&lt;b&gt;frontend&lt;/b&gt; x2 (HPA 2-3)&lt;br&gt;nginx: React build +&lt;br&gt;gateway for /api/* and /socket.io" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=11;fontColor=#232F3E;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="775" y="440" width="190" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="auth" value="&lt;b&gt;auth&lt;/b&gt; :3001 (HPA 1-3)&lt;br&gt;/api/*" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=11;fontColor=#232F3E;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="340" width="190" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="stream" value="&lt;b&gt;streaming&lt;/b&gt; :3002 x2 (HPA 2-4)&lt;br&gt;/api/streaming/*" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=11;fontColor=#232F3E;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="430" width="190" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="admin" value="&lt;b&gt;admin&lt;/b&gt; :3003&lt;br&gt;/api/admin/*" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=11;fontColor=#232F3E;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="520" width="190" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="chat" value="&lt;b&gt;chat&lt;/b&gt; :3004&lt;br&gt;/api/chat/*, websocket" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=11;fontColor=#232F3E;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="610" width="190" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="mongo" value="&lt;b&gt;MongoDB&lt;/b&gt; StatefulSet&lt;br&gt;EBS gp3 5Gi (encrypted)&lt;br&gt;app user: readWrite on streamingapp" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#E3FCF7;strokeColor=#00684A;fontSize=11;fontColor=#232F3E;" vertex="1" parent="1">
+          <mxGeometry x="1330" y="450" width="220" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="secret" value="Secret: Mongo passwords, JWT (random, kept on upgrade)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#F9A825;fontSize=10;fontColor=#232F3E;" vertex="1" parent="1">
+          <mxGeometry x="1330" y="700" width="250" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" value="&lt;b&gt;Amazon S3&lt;/b&gt;&lt;br&gt;streamingapp-media-099739121791&lt;br&gt;private, encrypted&lt;br&gt;(videos, thumbnails)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F2F8EC;strokeColor=#7AA116;fontSize=11;fontColor=#232F3E;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="1680" y="560" width="190" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- edges -->
+        <mxCell id="e1" value="git push" style="endArrow=block;html=1;strokeColor=#24292F;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="dev" target="gh"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e2" value="poll + checkout" style="endArrow=block;html=1;strokeColor=#ED7100;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.3;" edge="1" parent="1" source="gh" target="jenkins"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e3" value="docker build + push" style="endArrow=block;html=1;strokeColor=#ED7100;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="jenkins" target="ecr"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e4" value="helm upgrade --install" style="endArrow=block;html=1;strokeColor=#ED7100;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.75;entryX=0;entryY=0.08;" edge="1" parent="1" source="jenkins" target="ns">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="690" y="220" /><mxPoint x="690" y="340" /></Array></mxGeometry></mxCell>
+        <mxCell id="e5" value="pull images" style="endArrow=block;html=1;strokeColor=#ED7100;strokeWidth=1.5;dashed=1;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.6;entryX=0;entryY=0.35;" edge="1" parent="1" source="ecr" target="fe"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e6" value="deploy result" style="endArrow=block;html=1;strokeColor=#E7157B;strokeWidth=1.5;dashed=1;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0.25;exitY=1;entryX=0.25;entryY=0;" edge="1" parent="1" source="jenkins" target="sns">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="460" y="290" /><mxPoint x="370" y="290" /><mxPoint x="370" y="570" /><mxPoint x="460" y="570" /></Array></mxGeometry></mxCell>
+        <mxCell id="e7" value="email" style="endArrow=block;html=1;strokeColor=#E7157B;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sns" target="mail"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e8" value="alarms" style="endArrow=block;html=1;strokeColor=#E7157B;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="cw" target="sns"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e9" value="metrics + logs (Fluent Bit)" style="endArrow=block;html=1;strokeColor=#E7157B;strokeWidth=1.5;dashed=1;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.9;entryX=1;entryY=0.5;" edge="1" parent="1" source="eks" target="cw"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e10" value="HTTP :80" style="endArrow=block;html=1;strokeColor=#545B64;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.3;entryX=0;entryY=0.5;" edge="1" parent="1" source="users" target="lb">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="300" y="318" /><mxPoint x="300" y="80" /><mxPoint x="800" y="80" /><mxPoint x="800" y="178" /></Array></mxGeometry></mxCell>
+        <mxCell id="e11" value="" style="endArrow=block;html=1;strokeColor=#545B64;strokeWidth=1.5;exitX=0.5;exitY=1;entryX=0.4;entryY=0;" edge="1" parent="1" source="lb" target="fe">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="853" y="430" /></Array></mxGeometry></mxCell>
+        <mxCell id="e12" value="" style="endArrow=block;html=1;strokeColor=#1565C0;strokeWidth=1.2;exitX=1;exitY=0.2;entryX=0;entryY=0.5;" edge="1" parent="1" source="fe" target="auth"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e13" value="" style="endArrow=block;html=1;strokeColor=#1565C0;strokeWidth=1.2;exitX=1;exitY=0.4;entryX=0;entryY=0.5;" edge="1" parent="1" source="fe" target="stream"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e14" value="" style="endArrow=block;html=1;strokeColor=#1565C0;strokeWidth=1.2;exitX=1;exitY=0.6;entryX=0;entryY=0.5;" edge="1" parent="1" source="fe" target="admin"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e15" value="" style="endArrow=block;html=1;strokeColor=#1565C0;strokeWidth=1.2;exitX=1;exitY=0.8;entryX=0;entryY=0.5;" edge="1" parent="1" source="fe" target="chat"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e16" value="" style="endArrow=block;html=1;strokeColor=#00684A;strokeWidth=1.2;exitX=1;exitY=0.5;entryX=0;entryY=0.2;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="auth" target="mongo"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e17" value="MongoDB :27017" style="endArrow=block;html=1;strokeColor=#00684A;strokeWidth=1.2;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.45;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="stream" target="mongo"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e18" value="" style="endArrow=block;html=1;strokeColor=#00684A;strokeWidth=1.2;exitX=1;exitY=0.5;entryX=0;entryY=0.7;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="admin" target="mongo"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e19" value="" style="endArrow=block;html=1;strokeColor=#00684A;strokeWidth=1.2;exitX=1;exitY=0.5;entryX=0.2;entryY=1;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="chat" target="mongo">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1374" y="637" /></Array></mxGeometry></mxCell>
+        <mxCell id="e20" value="S3 via EKS Pod Identity (no keys)" style="endArrow=block;html=1;strokeColor=#7AA116;strokeWidth=1.5;dashed=1;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0;entryY=0.7;" edge="1" parent="1" source="admin" target="s3">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1125" y="595" /><mxPoint x="1290" y="595" /><mxPoint x="1290" y="623" /></Array></mxGeometry></mxCell>
+        <mxCell id="e21" value="" style="endArrow=block;html=1;strokeColor=#7AA116;strokeWidth=1.5;dashed=1;exitX=0.5;exitY=0;entryX=0.5;entryY=0;" edge="1" parent="1" source="stream" target="s3">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1125" y="415" /><mxPoint x="1275" y="415" /><mxPoint x="1275" y="420" /><mxPoint x="1775" y="420" /></Array></mxGeometry></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
