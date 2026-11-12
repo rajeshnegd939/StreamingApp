@@ -1,0 +1,69 @@
+# Rendered at container start by the nginx image (envsubst on ${VARS}).
+# Serves the React build and acts as the gateway to the backend services.
+server {
+    listen 8080;
+    server_tokens off;
+    client_max_body_size 500m;          # admin video uploads
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # resolve service names at request time, so nginx starts even if a backend is not up yet
+    resolver ${DNS_RESOLVER} valid=10s ipv6=off;
+
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    location = /healthz {
+        access_log off;
+        default_type text/plain;
+        return 200 "ok\n";
+    }
+
+    # chat websocket (socket.io)
+    location /socket.io/ {
+        set $chat_upstream ${CHAT_SERVICE};
+        proxy_pass http://$chat_upstream;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 3600s;
+    }
+
+    location /api/streaming/ {
+        set $streaming_upstream ${STREAMING_SERVICE};
+        proxy_pass http://$streaming_upstream;
+        proxy_buffering off;            # video streaming
+        proxy_read_timeout 300s;
+    }
+
+    location /api/admin/ {
+        set $admin_upstream ${ADMIN_SERVICE};
+        proxy_pass http://$admin_upstream;
+        proxy_request_buffering off;    # large uploads
+        proxy_read_timeout 300s;
+    }
+
+    location /api/chat/ {
+        set $chat_api_upstream ${CHAT_SERVICE};
+        proxy_pass http://$chat_api_upstream;
+    }
+
+    # everything else under /api belongs to the auth service
+    location /api/ {
+        set $auth_upstream ${AUTH_SERVICE};
+        proxy_pass http://$auth_upstream;
+    }
+
+    # React router: unknown paths load index.html
+    location / {
+        try_files $uri /index.html;
+    }
+
+    location /static/ {
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+}
