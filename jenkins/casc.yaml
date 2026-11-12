@@ -1,0 +1,44 @@
+# Jenkins Configuration as Code. Values like ${JENKINS_ADMIN_PASSWORD} come from
+# environment variables of the container (set in ec2-user-data.sh).
+jenkins:
+  systemMessage: "StreamingApp CI/CD - builds images, pushes to Amazon ECR, deploys to EKS with Helm"
+  numExecutors: 2
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: admin
+          password: ${JENKINS_ADMIN_PASSWORD}
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: true   # port 8080 is open only to my IP (security group)
+
+unclassified:
+  location:
+    url: ${JENKINS_URL}
+
+jobs:
+  - script: >
+      pipelineJob('streamingapp-ci-cd') {
+        description('Build the 5 Docker images, push them to Amazon ECR and deploy to EKS with Helm')
+        properties {
+          pipelineTriggers {
+            triggers {
+              githubPush()
+              pollSCM { scmpoll_spec('H/2 * * * *') }
+            }
+          }
+        }
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote { url('${GIT_REPO_URL}') }
+                branch('*/main')
+              }
+            }
+            scriptPath('Jenkinsfile')
+            lightweight(true)
+          }
+        }
+      }
