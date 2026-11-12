@@ -11,6 +11,8 @@ ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --chown=node:node . .
+# the app writes temp files (e.g. admin uploads), so /app must belong to node
+RUN chown node:node /app
 USER node
 EXPOSE 3004
 CMD ["node", "index.js"]
