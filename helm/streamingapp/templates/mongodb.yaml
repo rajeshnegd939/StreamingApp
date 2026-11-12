@@ -20,6 +20,7 @@ metadata:
   labels: {{- include "sa.labels" . | nindent 4 }}
 spec:
   clusterIP: None          # headless: gives the pod the stable name mongodb-0.mongodb
+  publishNotReadyAddresses: true   # DNS name exists even before the readiness probe passes
   selector: { app: mongodb }
   ports:
     - port: 27017
@@ -67,7 +68,8 @@ spec:
           readinessProbe:
             exec: { command: ["mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"] }
             initialDelaySeconds: 15
-            periodSeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 10     # mongosh needs more than the default 1s to start
           livenessProbe:
             tcpSocket: { port: 27017 }
             initialDelaySeconds: 30
