@@ -18,6 +18,7 @@ spec:
       labels: { app: {{ $name }}, tier: backend }
       annotations:
         checksum/secret: {{ include (print $root.Template.BasePath "/secret.yaml") $root | sha256sum | trunc 12 }}
+        {{- include "sa.noOtel" $root | nindent 8 }}
     spec:
       {{- if $svc.s3 }}
       serviceAccountName: {{ $root.Values.s3ServiceAccount }}

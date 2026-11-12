@@ -36,6 +36,9 @@ addons:
   - name: aws-ebs-csi-driver          # persistent disk for MongoDB
     useDefaultPodIdentityAssociations: true
   - name: amazon-cloudwatch-observability   # Container Insights metrics + Fluent Bit logs
+    # keep metrics and logs, but do not inject OpenTelemetry into every pod
+    # (it made mongosh hang, so MongoDB never became ready)
+    configurationValues: '{"manager":{"applicationSignals":{"autoMonitor":{"monitorAllServices":false}}}}'
 
 managedNodeGroups:
   - name: app-nodes

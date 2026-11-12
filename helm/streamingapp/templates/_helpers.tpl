@@ -29,3 +29,11 @@ http://{{ (index $svc.status.loadBalancer.ingress 0).hostname }}
 {{ randAlphaNum 32 }}
 {{- end -}}
 {{- end -}}
+
+{{/* Opt pods out of CloudWatch Application Signals auto-instrumentation */}}
+{{- define "sa.noOtel" -}}
+instrumentation.opentelemetry.io/inject-nodejs: "false"
+instrumentation.opentelemetry.io/inject-java: "false"
+instrumentation.opentelemetry.io/inject-python: "false"
+instrumentation.opentelemetry.io/inject-dotnet: "false"
+{{- end -}}

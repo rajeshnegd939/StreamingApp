@@ -39,6 +39,7 @@ spec:
   template:
     metadata:
       labels: { app: mongodb }
+      annotations: {{- include "sa.noOtel" . | nindent 8 }}
     spec:
       securityContext:
         runAsUser: 999
